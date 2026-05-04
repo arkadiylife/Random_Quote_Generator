@@ -133,3 +133,24 @@ class QuoteGenerator:
         self.display_current_quote(quote)
         self.update_history_list()
         self.update_filters()  # Обновляем фильтры
+
+    def display_current_quote(self, quote):
+        """Отображает текущую цитату"""
+        self.quote_text.config(state=tk.NORMAL)
+        self.quote_text.delete(1.0, tk.END)
+        display_text = f"\"{quote['text']}\"\n— {quote['author']} ({quote['topic']})"
+        self.quote_text.insert(1.0, display_text)
+        self.quote_text.config(state=tk.DISABLED)
+
+    def update_history_list(self):
+        """Обновляет отображение истории"""
+        self.history_listbox.delete(0, tk.END)
+
+        # Применяем фильтры перед отображением
+        filtered_history = self.get_filtered_history()
+
+        for i, quote in enumerate(filtered_history, 1):
+            display_text = f"{i}. \"{quote['text'][:50]}...\" — {quote['author']}"
+            self.history_listbox.insert(tk.END, display_text)
+
+
