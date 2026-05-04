@@ -116,3 +116,19 @@ class QuoteGenerator:
         ]
 
         self.update_filters()
+    def generate_quote(self):
+        """Генерирует случайную цитату и добавляет в историю"""
+        if not self.predefined_quotes:
+            messagebox.showwarning("Предупреждение", "Нет доступных цитат!")
+            return
+
+        quote = random.choice(self.predefined_quotes)
+
+        # Добавляем в историю
+        self.history.append(quote)
+        self.save_history()  # Сохраняем историю
+
+        # Обновляем отображение
+        self.display_current_quote(quote)
+        self.update_history_list()
+        self.update_filters()  # Обновляем фильтры
