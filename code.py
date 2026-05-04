@@ -1,1 +1,119 @@
+import tkinter as tk
+from tkinter import ttk, messagebox
+import random
+import json
+import os
+
+class QuoteGenerator:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Random Quote Generator")
+        self.root.geometry("600x500")
+
+        # Загрузка истории или создание пустой
+        self.history = self.load_history()
+
+        # Основной фрейм
+        main_frame = ttk.Frame(root, padding="10")
+        main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+
+        # Кнопка генерации
+        self.generate_btn = ttk.Button(main_frame, text="Сгенерировать цитату",
+                                       command=self.generate_quote)
+        self.generate_btn.grid(row=0, column=0, pady=10, sticky=tk.W)
+
+        # Отображение текущей цитаты
+        self.quote_text = tk.Text(main_frame, height=4, width=70, wrap=tk.WORD)
+        self.quote_text.grid(row=1, column=0, pady=5)
+        self.quote_text.config(state=tk.DISABLED)
+
+        # Фрейм для истории
+        history_frame = ttk.LabelFrame(main_frame, text="История цитат", padding="5")
+        history_frame.grid(row=2, column=0, pady=10, sticky=(tk.W, tk.E))
+
+        # Список истории
+        self.history_listbox = tk.Listbox(history_frame, width=75, height=10)
+        self.history_listbox.grid(row=0, column=0)
+
+        # Полоса прокрутки для истории
+        scrollbar = ttk.Scrollbar(history_frame, orient=tk.VERTICAL,
+                                   command=self.history_listbox.yview)
+        scrollbar.grid(row=0, column=1, sticky=(tk.N, tk.S))
+        self.history_listbox.config(yscrollcommand=scrollbar.set)
+
+        # Фрейм фильтров
+        filter_frame = ttk.LabelFrame(main_frame, text="Фильтры", padding="5")
+        filter_frame.grid(row=3, column=0, pady=10, sticky=(tk.W, tk.E))
+
+        # Фильтр по автору
+        ttk.Label(filter_frame, text="Автор:").grid(row=0, column=0, padx=5)
+        self.author_filter = ttk.Combobox(filter_frame, state="readonly")
+        self.author_filter.grid(row=0, column=1, padx=5)
+        self.author_filter.bind("<<ComboboxSelected>>", self.apply_filters)
+
+        # Фильтр по теме
+        ttk.Label(filter_frame, text="Тема:").grid(row=0, column=2, padx=5)
+        self.topic_filter = ttk.Combobox(filter_frame, state="readonly")
+        self.topic_filter.grid(row=0, column=3, padx=5)
+        self.topic_filter.bind("<<ComboboxSelected>>", self.apply_filters)
+
+        # Кнопка сброса фильтров
+        ttk.Button(filter_frame, text="Сбросить фильтры",
+                   command=self.reset_filters).grid(row=0, column=4, padx=5)
+
+        # Предопределённые цитаты
+        self.predefined_quotes = [
+            {
+                "text": "В науке истина редко бывает ясной, а чаще всего запутанной.",
+                "author": "Ричард Фейнман",
+                "topic": "физика"
+            },
+            {
+                "text": "Математика — это язык, на котором написана книга природы.",
+                "author": "Галилео Галилей",
+                "topic": "математика"
+            },
+            {
+                "text": "Воображение важнее знания.",
+                "author": "Альберт Эйнштейн",
+                "topic": "наука"
+            },
+            {
+                "text": "Наука — это организованные знания, мудрость — это организованная жизнь.",
+                "author": "Иммануил Кант",
+                "topic": "философия науки"
+            },
+            {
+                "text": "Самое непонятное в мире — то, что он понятен.",
+                "author": "Альберт Эйнштейн",
+                "topic": "физика"
+            },
+            {
+                "text": "Эксперимент — единственный судья научной истины.",
+                "author": "Нильс Бор",
+                "topic": "физика"
+            },
+            {
+                "text": "Гипотезы — это леса, которые возводят перед зданием и сносят, когда здание готово.",
+                "author": "Иоганн Вольфганг Гёте",
+                "topic": "методология науки"
+            },
+            {
+                "text": "Знания — сила.",
+                "author": "Фрэнсис Бэкон",
+                "topic": "философия науки"
+            },
+            {
+                "text": "Все должно быть изложено так просто, как только возможно, но не проще.",
+                "author": "Альберт Эйнштейн",
+                "topic": "наука"
+            },
+            {
+                "text": "Наблюдение, опыт, воображение — вот три кита науки.",
+                "author": "Владимир Вернадский",
+                "topic": "естествознание"
+            }
+        ]
+
+        self.update_filters()
 
