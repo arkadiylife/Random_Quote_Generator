@@ -153,4 +153,40 @@ class QuoteGenerator:
             display_text = f"{i}. \"{quote['text'][:50]}...\" — {quote['author']}"
             self.history_listbox.insert(tk.END, display_text)
 
+    def get_filtered_history(self):
+        """Возвращает отфильтрованную историю"""
+        author = self.author_filter.get()
+        topic = self.topic_filter.get()
 
+        filtered = self.history
+
+        if author:
+            filtered = [q for q in filtered if q['author'] == author]
+        if topic:
+            filtered = [q for q in filtered if q['topic'] == topic]
+
+        return filtered
+
+    def apply_filters(self, event=None):
+        """Применяет фильтры к истории"""
+        self.update_history_list()
+
+    def reset_filters(self):
+        """Сбрасывает фильтры"""
+        self.author_filter.set("")
+        self.topic_filter.set("")
+        self.update_history_list()
+
+    def update_filters(self):
+        """Обновляет списки фильтров"""
+        authors = sorted(set(q['author'] for q in self.predefined_quotes))
+        topics = sorted(set(q['topic'] for q in self.predefined_quotes))
+
+        self.author_filter['values'] = [""] + authors
+        self.topic_filter['values'] = [""] + topics
+
+    def save_history(self):
+        """Сохраняет историю в JSON файл"""
+        try:
+            with open("quote_history.json", "w", encoding="utf-8") as f:
+                json.
